@@ -6,7 +6,7 @@ const groq = new Groq({
     apiKey: env.GROQ_API_KEY,
 });
 
-export async function generateSummaryFromArticle(content: string) {
+export const generateSummaryFromArticle = async (content: string) => {
     const chatCompletion = await groq.chat.completions.create({
         model: 'llama3-70b-8192',
         messages: [
