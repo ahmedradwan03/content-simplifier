@@ -20,7 +20,7 @@ spec:
                       - containerPort: 5432
                   env:
                       - name: POSTGRES_DB
-                        value: 'content_simplifier'
+                        value: "content_simplifier"
                       - name: POSTGRES_USER
                         valueFrom:
                             secretKeyRef:
@@ -37,23 +37,6 @@ spec:
                   volumeMounts:
                       - name: postgres-storage
                         mountPath: /var/lib/postgresql/data
-    volumeClaimTemplates:
-        - metadata:
-              name: postgres-storage
-          spec:
-              accessModes:
-                  - ReadWriteOnce
-              resources:
-                  requests:
-                      storage: 1Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-    name: postgres
-spec:
-    selector:
-        app: postgres
-    ports:
-        - port: 5432
-          targetPort: 5432
+            volumes:
+                - name: postgres-storage
+                  emptyDir: {}
