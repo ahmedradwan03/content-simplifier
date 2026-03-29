@@ -68,12 +68,12 @@ jobs:
 
             - name: Deploy app
               run: |
-                  kubectl create deployment app \
+                  kubectl create deployment node-app \
                      --image=${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
 
             - name: Expose app
               run: |
-                  kubectl expose deployment app \
+                  kubectl expose deployment node-app    \
                   --type=NodePort \
                   --port=3000
 
