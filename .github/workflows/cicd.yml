@@ -39,8 +39,8 @@ jobs:
                   tags: |
                       ${{ secrets.DOCKER_USERNAME }}/content-simplifier:latest
                       ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
-                #   cache-from: type=gha
-                #   cache-to: type=gha,mode=max
+                  #   cache-from: type=gha
+                  #   cache-to: type=gha,mode=max
 
             - name: Done
               run: echo "Image pushed to Docker Hub successfully!"
@@ -54,24 +54,28 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Setup kubeconfig
-              run: |
-                  mkdir -p $HOME/.kube
-                  echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
-                  chmod 600 $HOME/.kube/config
-
             - name: Setup kubectl
               uses: azure/setup-kubectl@v4
 
-            - name: Deploy new image
+            - name: Install kind
               run: |
-                  kubectl set image deployment/node-app \
-                  node-app=${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
+                  curl -Lo kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+                  chmod +x kind
+                  sudo mv kind /usr/local/bin/kind
 
-            - name: Wait for rollout
+            - name: Create cluster
+              run: kind create cluster
+
+            - name: Deploy app
               run: |
-                  kubectl rollout status deployment/node-app --timeout=120s
+                  kubectl create deployment app \
+                     --image=${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
+
+            - name: Expose app
+              run: |
+                  kubectl expose deployment app \
+                  --type=NodePort \
+                  --port=3000
 
             - name: Check pods
-              run: |
-                  kubectl get pods -l app=node-app
+              run: kubectl get pods
