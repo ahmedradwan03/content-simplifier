@@ -73,8 +73,14 @@ jobs:
               run: |
                   kubectl apply -f k8s/
 
-            - name: Wait for rollout (Node App)
-              run: kubectl rollout status deployment/node-app
+            - name: Wait for Postgres
+              run: kubectl rollout status deployment/postgres --timeout=120s
+
+            - name: Wait for Redis
+              run: kubectl rollout status deployment/redis --timeout=120s
+
+            - name: Wait for Node App rollout
+              run: kubectl rollout status deployment/node-app --timeout=180s
 
             - name: Check all pods
               run: kubectl get pods
@@ -82,6 +88,10 @@ jobs:
             - name: Check services
               run: kubectl get svc
 
-            - name: Debug info (optional)
+            - name: Debug info
+              if: failure()
               run: |
+                  kubectl get pods
                   kubectl describe pods
+                  kubectl logs deployment/node-app
+                  kubectl get events --sort-by=.metadata.creationTimestamp
