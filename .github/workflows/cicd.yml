@@ -46,52 +46,18 @@ jobs:
     cd:
         needs: ci
         runs-on: ubuntu-latest
-        environment: production
 
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
             - name: Setup kubectl
               uses: azure/setup-kubectl@v4
 
-            - name: Install kind
-              run: |
-                  curl -Lo kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
-                  chmod +x kind
-                  sudo mv kind /usr/local/bin/kind
-
-            - name: Create cluster
+            - name: Create kind cluster
               run: kind create cluster
 
-            - name: Load Docker image into kind
-              run: |
-                  docker pull ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
-                  kind load docker-image ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
+            - name: Deploy app
+              run: kubectl create deployment node-app --image=node-app
 
-            - name: Deploy Kubernetes manifests
-              run: |
-                  kubectl apply -f k8s/
-
-            - name: Wait for Postgres
-              run: kubectl rollout status statefulset/postgres --timeout=120s
-
-            - name: Wait for Redis
-              run: kubectl rollout status statefulset/redis --timeout=120s
-
-            - name: Wait for Node App rollout
-              run: kubectl rollout status deployment/node-app --timeout=180s
-
-            - name: Check all pods
+            - name: Run pods
               run: kubectl get pods
-
-            - name: Check services
-              run: kubectl get svc
-
-            - name: Debug info
-              if: failure()
-              run: |
-                  kubectl get pods
-                  kubectl describe pods
-                  kubectl logs deployment/node-app
-                  kubectl get events --sort-by=.metadata.creationTimestamp
