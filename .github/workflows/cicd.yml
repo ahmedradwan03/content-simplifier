@@ -69,26 +69,19 @@ jobs:
                   docker pull ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
                   kind load docker-image ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
 
-            - name: Deploy app
+            - name: Deploy Kubernetes manifests
               run: |
-                  kubectl create deployment node-app \
-                    --image=${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }} \
-                    --dry-run=client -o yaml | kubectl apply -f -
+                  kubectl apply -f k8s/
 
-            - name: Expose app
-              run: |
-                  kubectl expose deployment node-app \
-                    --type=NodePort \
-                    --port=3000 \
-                    --dry-run=client -o yaml | kubectl apply -f -
-
-            - name: Wait for rollout
+            - name: Wait for rollout (Node App)
               run: kubectl rollout status deployment/node-app
 
-            - name: Check pods
+            - name: Check all pods
               run: kubectl get pods
 
-            - name: Debug info (if needed)
+            - name: Check services
+              run: kubectl get svc
+
+            - name: Debug info (optional)
               run: |
                   kubectl describe pods
-                  kubectl get svc
