@@ -57,7 +57,9 @@ jobs:
               run: kind create cluster
 
             - name: Deploy app
-              run: kubectl create deployment node-app --image=node-app
+              run: |
+                  kubectl create deployment node-app \
+                     --image=${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
 
             - name: Run pods
               run: kubectl get pods
