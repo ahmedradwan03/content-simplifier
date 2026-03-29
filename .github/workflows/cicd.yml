@@ -70,7 +70,10 @@ jobs:
                   kind load docker-image ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
 
             - name: Deploy app
-              run: kubectl apply -f k8s/
+              run: |
+                  kubectl create deployment node-app \
+                    --image=${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }} \
+                    --dry-run=client -o yaml | kubectl apply -f -
 
             - name: Expose app
               run: |
