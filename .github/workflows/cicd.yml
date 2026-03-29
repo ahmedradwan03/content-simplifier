@@ -48,7 +48,8 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout code
+              uses: actions/checkout@v4
 
             - name: Install kind
               run: |
@@ -67,12 +68,11 @@ jobs:
                   docker build -t node-app .
                   kind load docker-image node-app
 
-            - name: Deploy app
-              run: |
-                  kubectl create deployment node-app --image=node-app --dry-run=client -o yaml | kubectl apply -f -
+            - name: Deploy ALL services (Node + Postgres + Redis)
+              run: kubectl apply -f k8s/
 
             - name: Check pods
               run: kubectl get pods
 
-            - name: Wait rollout
+            - name: Wait for Node rollout
               run: kubectl rollout status deployment/node-app
