@@ -61,7 +61,7 @@ jobs:
           kind load docker-image ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
 
       - name: Update image tag
-        run: sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
+        run: sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/app.yaml
 
       - name: Deploy all k8s manifests
         run: kubectl apply -f k8s/
