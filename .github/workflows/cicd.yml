@@ -74,10 +74,10 @@ jobs:
                   kubectl apply -f k8s/
 
             - name: Wait for Postgres
-              run: kubectl rollout status deployment/postgres --timeout=120s
+              run: kubectl rollout status statefulset/postgres --timeout=120s
 
             - name: Wait for Redis
-              run: kubectl rollout status deployment/redis --timeout=120s
+              run: kubectl rollout status statefulset/redis --timeout=120s
 
             - name: Wait for Node App rollout
               run: kubectl rollout status deployment/node-app --timeout=180s
