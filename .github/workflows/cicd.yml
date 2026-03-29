@@ -44,14 +44,8 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
           kind load docker-image ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
       - name: Create config & secrets
-        run:
-          kubectl create secret generic app-secret \
-            --from-literal=DB_USER=${{ secrets.DB_USER }} \
-            --from-literal=DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            --from-literal=JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-            --from-literal=OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-            --from-literal=GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
-            --dry-run=client -o yaml | kubectl apply -f -
+        run: |
+          kubectl create secret generic app-secret --from-literal=DB_USER=${{ secrets.DB_USER }} --from-literal=DB_PASSWORD=${{ secrets.DB_PASSWORD }} --from-literal=JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} --from-literal=OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} --from-literal=GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} --dry-run=client -o yaml | kubectl apply -f -
       - name: Deploy
         run: |
           sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/app.yaml
