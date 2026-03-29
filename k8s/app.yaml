@@ -14,7 +14,7 @@ spec:
         spec:
             containers:
                 - name: node-app
-                  image: ahmedradwann/node-image
+                  image: ahmedradwann/content-simplifier:latest
                   ports:
                       - containerPort: 3000
                   envFrom:

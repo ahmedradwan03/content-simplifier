@@ -11,8 +11,7 @@ const pool = new Pool({
 });
 
 
-export const dbConnection = async () => {
-
+export const dbConnection = async () => { 
     try {
         await pool.connect();
         console.log('✅ Connected to PostgreSQL database');

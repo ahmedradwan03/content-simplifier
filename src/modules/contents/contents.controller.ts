@@ -5,6 +5,7 @@ import * as contentService from './contents.service';
 import { redisClient } from '../../config/redis';
 
 export const createContentJob = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+
     const { url } = req.body;
     const userId = req.user?.id;
 
