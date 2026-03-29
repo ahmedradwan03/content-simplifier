@@ -60,11 +60,22 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
           kind load docker-image ${{ secrets.DOCKER_USERNAME }}/content-simplifier:${{ github.sha }}
 
+      - name: Update image tag
+        run: sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
+
       - name: Deploy all k8s manifests
         run: kubectl apply -f k8s/
 
       - name: Wait for rollout
-        run: kubectl rollout status deployment/node-app
+        run: kubectl rollout status deployment/node-app --timeout=120s
 
       - name: Check pods & services
         run: kubectl get pods,svc
+
+      - name: Debug on failure
+        if: failure()
+        run: |
+          kubectl get pods -o wide
+          kubectl describe deployment/node-app
+          kubectl describe pods
+          kubectl get events --sort-by='.lastTimestamp'
